@@ -1,0 +1,61 @@
+#video - https://www.youtube.com/watch?v=gFqzZm1-KH8
+#globally allow icmp
+access-list global_access extended permit icmp any any
+#globally allow dns
+access-list global_access extended permit udp any any eq 53
+access-list global_access extended permit tcp any any eq 53
+#show access-list global_access
+access-group global_access
+#only one acl can applied to global
+
+traceroute -n ip
+
+#allow traceroute from anywher to anywhere else
+access-list Traceroute permit udp any any range 33464 33464
+access-group Traceroute in interface Inside
+
+access-list dmz_in permit udp any any range 33464 33464
+access-group dmz_in in interface DMZ
+
+#traceroute acl is bad name to rename
+access-list Traceroute rename inside_in
+
+#allow http/https
+object-group service web tcp
+description Web Browsing
+port-object eq http
+port-object eq https
+
+access-list inside_in remark Allow web browsing from the inside
+access-list inside_in permit tcp any any object-group web
+
+#allow intraserver to http
+object network Server-Intranet
+host 172.16.0.1
+descr Intranet Server
+
+access-list Outside_in remark Allow HTTPS
+#allow outside to connect tctp to server IP eq 443
+access-list Outside_in permit tcp any object Server-Intranet eq HTTPS
+#allow traffic from outside in
+access-group Outside_in in interface Outside
+
+#show command
+show access-list
+
+#add dns
+dns domain-lookup [DMZ]
+dns server group DefaultDNS
+name-server 172.16.0.1
+domain-name networkdirection.net
+
+access-list inside_in permit tcp any object Intranet object-group web
+
+#show dns
+show dns
+
+#time limit rules
+#packet tracer
+packet-tracer input inside tcp sourceip [any port] dest_ip [dest_port]
+#format
+packet-tracer input [src_int] protocol src_addr src_port dest_addr  dest_port [detailed] [xml]
