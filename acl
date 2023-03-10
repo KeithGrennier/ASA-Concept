@@ -59,3 +59,8 @@ show dns
 packet-tracer input inside tcp sourceip [any port] dest_ip [dest_port]
 #format
 packet-tracer input [src_int] protocol src_addr src_port dest_addr  dest_port [detailed] [xml]
+
+#IMPORTANT - Security levels have implicit deny from inter/intra levels. 
+#Each interface has a security level, and security level checking is performed before access rules are considered. 
+#Thus, even if you allow a connection in an access rule, it can be blocked due to same-security-level checking at the interface level.
+#You might want to ensure that your configuration allows same-security-level connections so that your access rules are always considered for permit/deny decisions.
